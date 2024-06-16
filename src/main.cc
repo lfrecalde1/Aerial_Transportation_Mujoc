@@ -483,7 +483,6 @@ int main(int argc, char** argv) {
 
   // print version, check compatibility
   std::printf("MuJoCo version %s\n", mj_versionString());
-  std::printf("Fernando Version %s\n", mj_versionString());
   if (mjVERSION_HEADER!=mj_version()) {
     mju_error("Headers and library have different versions");
   }
@@ -493,6 +492,13 @@ int main(int argc, char** argv) {
 
   mjvCamera cam;
   mjv_defaultCamera(&cam);
+  double arr_view[] = {0.608063, -0.588379, 5, 0.000000, 0.000000, 10.000000};
+  cam.azimuth = arr_view[0];
+  cam.elevation = arr_view[1];
+  cam.distance = arr_view[2];
+  cam.lookat[0] = arr_view[3];
+  cam.lookat[1] = arr_view[4];
+  cam.lookat[2] = arr_view[5];
 
   mjvOption opt;
   mjv_defaultOption(&opt);

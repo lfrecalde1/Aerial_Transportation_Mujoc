@@ -1,6 +1,9 @@
 <mujoco>
   <option density="1.204" viscosity="1.8e-5" integrator="implicit"/>
-
+   <default>
+        <site type="sphere" rgba="1 0 0 1" size="0.005"/>
+        <tendon rgba="0 1 0 1" stiffness="500" damping="10"/>
+    </default>
   <visual>
     <global elevation="-10"/>
   </visual>
