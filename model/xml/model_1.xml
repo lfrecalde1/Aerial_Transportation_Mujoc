@@ -34,7 +34,7 @@
     <!-- System Models -->
     <!-- Block fized postion, free rotation -->
     <body name="block_1" pos="0 0 1">
-      <joint pos="0 0 0" type="ball" actuatorfrclimited="false" damping="0.1"/>
+      <joint pos="0 0 0" type="ball" actuatorfrclimited="false" damping="0.03"/>
       <geom name="block_1" size="0.1 0.2 0.3" type="box" rgba="0 0.9 0 1" mass="1.0"/>
     </body>
 
@@ -59,9 +59,10 @@
 
 
     <!-- Quadrotor body -->
-    <body name="quadrotor" pos="0 0 0" euler="0 0 0">
-      <joint name="root_drone" type="free" damping="0.03" armature="0" pos="0 0 0"/>
-      <geom name="core" type="box" pos="0 0 0" quat="1. 0. 0. 0" size="0.035 0.035 0.015" rgba="1 1 1 0.7" mass=".84"/>
+    <body name="drone" pos="0 0 0" euler="0 0 0">
+      <joint name="drone" type="free" damping="0.03" armature="0" pos="0 0 0"/>
+      <!--Friction only for the core of the quadrotor-->
+      <geom name="core" type="box" pos="0 0 0" quat="1. 0. 0. 0" size="0.035 0.035 0.015" rgba="1 1 1 0.7" mass=".84" friction="1.0 0.005 0.0001"/>
       <geom name="a00" type="box" pos=".071 0.071 0.0" size="0.05 0.01 0.0025" quat=".924 0.0 0.0 0.383" rgba="1 1 1 0.7" mass=".025"/>
       <geom name="a10" type="box" pos=".071 -0.071 0.0" size="0.05 0.01 0.0025" quat=".383 0.0 0.0 0.924" rgba="1 1 1 0.7" mass=".025"/>
       <geom name="a20" type="box" pos="-0.071 -0.071 0.0" size="0.05 0.01 0.0025" quat="-.383 0.0 0.0 0.924" rgba="1 1 1 0.7" mass=".025"/>
@@ -74,38 +75,58 @@
       <geom name="thruster3" type="cylinder" pos="-0.1 0.1 0.01" size="0.05 0.0025" quat="1.0 0.0 0.0 0." rgba="0.2 0.2 0.2 1" mass=".015"/>
 
       <!--  Representation of the body frame   -->
-      <site name="qcX" type="box" pos="0.05 0.0 0.0" size="0.05 0.005 0.005" quat=" 1.000 0.0 0.0 0." rgba="1 0 0 1"/>
+      <site name="qcX" type="box" pos="0.05 0.0 0.0" size="0.05 0.005 0.005" quat=" 1.0 0.0 0.0 0." rgba="1 0 0 1"/>
       <site name="qcY" type="box" pos="0.0 0.05 0.0" size="0.05 0.005 0.005" quat=" 0.707 0.0 0.0 0.707" rgba="0 1 0 1"/>
       <site name="qcZ" type="box" pos="0.0 0.0 0.05" size="0.05 0.005 0.005" quat="-0.707 0.0 0.707 0." rgba="0 0 1 1"/>
 
       <!--   Actuator sites to attach actuators, make it invisible   -->
-      <site name="thrust" type="box" pos="0 0 0" size="0.035 0.035 0.015" quat="1.0 0.0 0.0 0." rgba="0 1 1 0"/>
-      <site name="rateX" type="box" pos="0 0 0" quat="1. 0. 0. 0." size="0.06 0.035 0.015" rgba="0 1 1 0"/>
-      <site name="rateY" type="box" pos="0 0 0" quat="1. 0. 0. 0." size="0.06 0.035 0.015" rgba="0 1 1 0"/>
-      <site name="rateZ" type="box" pos="0 0 0" quat="1. 0. 0. 0." size="0.06 0.035 0.015" rgba="0 1 1 0"/>
+      <site name="thrust" type="box" pos="0 0 0" size="0.035 0.035 0.015" quat="1.0 0.0 0.0 0." rgba="0 1 1 1"/>
+      <site name="rateX" type="box" pos="0 0 0" quat="1. 0. 0. 0." size="0.035 0.035 0.015" rgba="0 1 1 1"/>
+      <site name="rateY" type="box" pos="0 0 0" quat="1. 0. 0. 0." size="0.035 0.035 0.015" rgba="0 1 1 1"/>
+      <site name="rateZ" type="box" pos="0 0 0" quat="1. 0. 0. 0." size="0.035 0.035 0.015" rgba="0 1 1 1"/>
+      <site name="imu" pos="0 0 0"/>
 
+      <site name="payload_point_drone" pos="0.0 0.0 -0.015"/>
     </body>
+
+    <!-- Payloy only in xyz axis -->
+    <body name="payload_ball" pos="1 1 1">
+      <joint name="payload_joint" pos="0 0 0" type="free" damping="0.1"/>
+      <geom name="payload_ball" size="0.03" type="sphere" rgba="1 1 1 1" mass="0.15"/>
+      <site name="payload_point" pos="0.0 0.0 0.03"/>
+    </body>
+
   </worldbody>
 
 
       <!--  Actuators of the system   -->
 <actuator>
-    <motor ctrllimited="true" ctrlrange="0.0 20.0" gear="0 0. 1. 0. 0. 0." site="thrust"/>
-    <motor ctrllimited="true" ctrlrange="-5 5" gear="0. 0. 0. 1. 0. 0." site="rateX"/>
-    <motor ctrllimited="true" ctrlrange="-5 5" gear="0. 0. 0. 0. 1. 0." site="rateY"/>
-    <motor ctrllimited="true" ctrlrange="-5 5" gear="0. 0. 0. 0. 0. 1." site="rateZ"/>
+    <motor ctrllimited="true" ctrlrange="0 20.0" gear="0 0. 1. 0. 0. 0." site="thrust" name="body_thrust"/>
+    <motor ctrllimited="true" ctrlrange="-1 1" gear="0. 0. 0. 1. 0. 0." site="rateX" name="x_moment"/>
+    <motor ctrllimited="true" ctrlrange="-1 1" gear="0. 0. 0. 0. 1. 0." site="rateY" name="y_moment"/>
+    <motor ctrllimited="true" ctrlrange="-1 1" gear="0. 0. 0. 0. 0. 1." site="rateZ" name="z_moment"/>
 </actuator>
+
 <sensor>
-    <framequat name="quat_drone" objtype="geom" reftype="body" refname="world" objname="core" noise="0.000"/>
-    <framepos name="position_drone" objtype="geom" objname="core" noise="0.00"/>
-    <velocimeter name="linear_velocity_drone" site="thrust" noise="0.0"/>
-    <gyro name="angular_velocity_drone" site="thrust" noise="0.00"/>
+    <framequat name="drone_quat" objtype="site" objname="imu" noise="0.001"/>
+    <framepos name="drone_position" objtype="site" objname="imu" noise="0.01"/>
+    <velocimeter name="drone_linear_velocity" site="imu" noise="0.00"/>
+    <gyro name="drone_angular_velocity" site="imu" noise="0.00"/>
+    <accelerometer name="drone_linacc" site="imu" noise="0.00"/>
 </sensor>
+
 
     <tendon>
         <spatial name="rope0" range="0 2">
             <site site="origin0"/>
             <site site="insertion0"/>
+        </spatial>
+    </tendon>
+
+    <tendon>
+        <spatial name="rope1" range="0 2">
+            <site site="payload_point_drone"/>
+            <site site="payload_point"/>
         </spatial>
     </tendon>
 
