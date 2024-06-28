@@ -6,7 +6,7 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 def generate_launch_description():
-    xml_file_name = "model/xml/model_1.xml"
+    xml_file_name = "model/xml/drone_payload.xml"
     #xml_file_name = "model/bitcraze_crazyflie_2/scene.xml"
     xml_file = os.path.join(get_package_share_path("drone_mujoco"), xml_file_name)
     print(xml_file)

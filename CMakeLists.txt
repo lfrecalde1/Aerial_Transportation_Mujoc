@@ -20,6 +20,8 @@ list(APPEND ${PROJECT_NAME}_CONFIG_EXTRAS
 
 find_package(ament_cmake REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(communication REQUIRED)
+find_package(mujoco_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(tf2 REQUIRED)
@@ -59,6 +61,8 @@ ament_target_dependencies(
   "tf2_ros"
   "nav_msgs"
   "cv_bridge"
+  "communication"
+  "mujoco_msgs"
 )
 
 install(TARGETS my_node

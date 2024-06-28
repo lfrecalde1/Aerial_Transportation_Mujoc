@@ -18,7 +18,7 @@
 #include <mujoco/mjrender.h>
 
 #define mjMAXUISECT     10      // maximum number of sections
-#define mjMAXUIITEM     200     // maximum number of items per section
+#define mjMAXUIITEM     80      // maximum number of items per section
 #define mjMAXUITEXT     300     // maximum number of chars in edittext and other
 #define mjMAXUINAME     40      // maximum number of chars in name
 #define mjMAXUIMULTI    35      // maximum number of radio/select items in group
@@ -55,8 +55,6 @@
 #define mjKEY_F10        299
 #define mjKEY_F11        300
 #define mjKEY_F12        301
-#define mjKEY_NUMPAD_0   320
-#define mjKEY_NUMPAD_9   329
 
 
 //---------------------------------- primitive types (mjt) -----------------------------------------
@@ -99,7 +97,6 @@ typedef enum mjtItem_ {           // UI item type
   mjITEM_SLIDERNUM,               // slider, mjtNum value
   mjITEM_EDITINT,                 // editable array, int values
   mjITEM_EDITNUM,                 // editable array, mjtNum values
-  mjITEM_EDITFLOAT,               // editable array, float values
   mjITEM_EDITTXT,                 // editable text
 
   mjNITEM                         // number of item types
@@ -210,9 +207,9 @@ struct mjuiItemSingle_ {          // check and button-related
 };
 
 
-struct mjuiItemMulti_ {                  // static, radio and select-related
-  int nelem;                             // number of elements in group
-  char name[mjMAXUIMULTI][mjMAXUINAME];  // element names
+struct mjuiItemMulti_ {           // static, radio and select-related
+  int nelem;                      // number of elements in group
+  char name[mjMAXUIMULTI][mjMAXUINAME]; // element names
 };
 
 
@@ -239,10 +236,10 @@ struct mjuiItem_ {                // UI item
 
   // type-specific properties
   union {
-    struct mjuiItemSingle_ single;  // check and button
-    struct mjuiItemMulti_ multi;    // static, radio and select
-    struct mjuiItemSlider_ slider;  // slider
-    struct mjuiItemEdit_ edit;      // edit
+    struct mjuiItemSingle_ single; // check and button
+    struct mjuiItemMulti_ multi;   // static, radio and select
+    struct mjuiItemSlider_ slider; // slider
+    struct mjuiItemEdit_ edit;     // edit
   };
 
   // internal

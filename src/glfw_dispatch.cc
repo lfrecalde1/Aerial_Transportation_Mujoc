@@ -114,10 +114,6 @@ const struct Glfw& Glfw(void* dlhandle) {
     mjGLFW_INITIALIZE_SYMBOL(glfwWindowShouldClose);
     // go/keep-sorted end
 
-#ifdef __APPLE__
-    mjGLFW_INITIALIZE_SYMBOL(glfwGetNSGLContext);
-#endif
-
 #undef mjGLFW_INITIALIZE_SYMBOL
 
     return glfw;
