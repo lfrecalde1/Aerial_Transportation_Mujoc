@@ -10,23 +10,25 @@ MuJoCoMessageHandler::MuJoCoMessageHandler(mj::Simulate *sim)
   model_param_name = name_prefix + "model_file";
   this->declare_parameter(model_param_name, "");
   
+  auto qos = rclcpp::QoS(rclcpp::KeepLast(1), rmw_qos_profile_sensor_data);
+
   odom_publisher_ = this->create_publisher<nav_msgs::msg::Odometry>("odom", 100);
   odom_publisher_load_ = this->create_publisher<nav_msgs::msg::Odometry>("load", 100);
   imu_publisher_ = this->create_publisher<sensor_msgs::msg::Imu>("imu", 100);
 
   timers_.emplace_back(this->create_wall_timer(
-      10ms, std::bind(&MuJoCoMessageHandler::odom_callback, this)));
+      5ms, std::bind(&MuJoCoMessageHandler::odom_callback, this)));
 
   timers_.emplace_back(this->create_wall_timer(
-      10ms, std::bind(&MuJoCoMessageHandler::odom_load_callback, this)));
+      5ms, std::bind(&MuJoCoMessageHandler::odom_load_callback, this)));
 
   timers_.emplace_back(this->create_wall_timer(
       2.5ms, std::bind(&MuJoCoMessageHandler::imu_callback, this)));
     
-  actuator_cmd_subscription_ = this->create_subscription<mujoco_msgs::msg::Control>("cmd", 100,
-          std::bind(&MuJoCoMessageHandler::actuator_cmd_callback, this,
-                    std::placeholders::_1));
+  //subcriber_ = this->create_subscription<example_interfaces::msg::String>("robot_news", 10, std::bind(&ListenerStationNode::callbacklistener, this, std::placeholders::_1));
+  actuator_cmd_subscription_ = this->create_subscription<mujoco_msgs::msg::Control>("cmd", qos, std::bind(&MuJoCoMessageHandler::actuator_cmd_callback, this, std::placeholders::_1));
 
+  actuator_cmds_ptr_ = std::make_shared<Control>();
   RCLCPP_INFO(this->get_logger(), "Start MuJoCoMessageHandler ...");
 
   std::string model_file = this->get_parameter(model_param_name)
@@ -145,5 +147,9 @@ void MuJoCoMessageHandler::imu_callback() {
     }
     imu_publisher_->publish(message);
   }
+}
+std::shared_ptr<MuJoCoMessageHandler::Control>
+MuJoCoMessageHandler::get_actuator_cmds_ptr() {
+  return actuator_cmds_ptr_;
 }
 } // namespace deepbreak

@@ -49,6 +49,8 @@ mjData *d = nullptr;
 
 // control noise variables
 mjtNum *ctrlnoise = nullptr;
+std::shared_ptr<deepbreak::MuJoCoMessageHandler::Control> actuator_cmds_ptr;
+
 using Seconds = std::chrono::duration<double>;
 
 //---------------------------------------- plugin handling
@@ -242,6 +244,14 @@ mjModel *LoadModel(const char *file, mj::Simulate &sim) {
   return mnew;
 }
 
+void apply_ctrl(mjModel *m, mjData *d) {
+    d->ctrl[0] = actuator_cmds_ptr->thrust;
+    d->ctrl[1] = actuator_cmds_ptr->torque_x;
+    d->ctrl[2] = actuator_cmds_ptr->torque_y;
+    d->ctrl[3] = actuator_cmds_ptr->torque_z;
+
+}
+
 // simulate in background thread (while rendering in main thread)
 void PhysicsLoop(mj::Simulate &sim) {
   // cpu-sim syncronization point
@@ -365,6 +375,7 @@ void PhysicsLoop(mj::Simulate &sim) {
 
             // Control actions ROS
             // Control actions ROS
+            apply_ctrl(sim.m, sim.d);
 
 
             // run single step, let next iteration deal with timing
@@ -398,6 +409,7 @@ void PhysicsLoop(mj::Simulate &sim) {
 
               // Control actions Ros
               // COntrol actions ROS
+              apply_ctrl(sim.m, sim.d);
 
               // call mj_step
               mj_step(m, d);
@@ -501,6 +513,7 @@ int main(int argc, const char **argv) {
   // start simulation UI loop (blocking call)
   auto message_handle =
       std::make_shared<deepbreak::MuJoCoMessageHandler>(sim.get());
+  actuator_cmds_ptr = message_handle->get_actuator_cmds_ptr();
   auto spin_func = [](std::shared_ptr<deepbreak::MuJoCoMessageHandler> node_ptr) {
     rclcpp::spin(node_ptr);
   };

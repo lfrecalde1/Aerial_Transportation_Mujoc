@@ -83,7 +83,7 @@ class Simulate {
   int help = 0;
   int info = 1;
   int profiler = 0;
-  int sensor = 0;
+  int sensor = 1;
   int fullscreen = 1;
   int vsync = 1;
   int busywait = 0;

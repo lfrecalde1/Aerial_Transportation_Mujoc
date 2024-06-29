@@ -40,7 +40,7 @@ public:
 
   struct Control {
     double time = 0.0;
-    float thrust;
+    float thrust = 9.81*(1.0 + 0.15);
     float torque_x;
     float torque_y;
     float torque_z;
@@ -62,14 +62,13 @@ private:
   mj::Simulate *sim_;
   std::string name_prefix, model_param_name;
   std::vector<rclcpp::TimerBase::SharedPtr> timers_;
-  std::once_flag once_flag_;
 
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_load_;
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_publisher_;
 
-  rclcpp::Subscription<mujoco_msgs::msg::Control>::SharedPtr
-      actuator_cmd_subscription_;
+  //rclcpp::Subscription<mujoco_msgs::msg::Control>::SharedPtr actuator_cmd_subscription_;
+  rclcpp::Subscription<mujoco_msgs::msg::Control>::SharedPtr actuator_cmd_subscription_;
 
   std::shared_ptr<Control> actuator_cmds_ptr_;
 
