@@ -1,6 +1,9 @@
 #include "MuJoCoMessageHandler.h"
 
 #include "cv_bridge/cv_bridge.h"
+#include "opencv2/highgui.hpp"
+#include "opencv2/imgproc.hpp"
+#include "opencv2/opencv.hpp"
 #include "sensor_msgs/image_encodings.hpp"
 
 namespace deepbreak {
@@ -15,6 +18,7 @@ MuJoCoMessageHandler::MuJoCoMessageHandler(mj::Simulate *sim)
   odom_publisher_ = this->create_publisher<nav_msgs::msg::Odometry>("odom", 100);
   odom_publisher_load_ = this->create_publisher<nav_msgs::msg::Odometry>("load", 100);
   imu_publisher_ = this->create_publisher<sensor_msgs::msg::Imu>("imu", 100);
+  rgb_img_publisher_ptr_ = this->create_publisher<sensor_msgs::msg::Image>("rgb_image", 100);
 
   timers_.emplace_back(this->create_wall_timer(
       5ms, std::bind(&MuJoCoMessageHandler::odom_callback, this)));
@@ -25,16 +29,14 @@ MuJoCoMessageHandler::MuJoCoMessageHandler(mj::Simulate *sim)
   timers_.emplace_back(this->create_wall_timer(
       2.5ms, std::bind(&MuJoCoMessageHandler::imu_callback, this)));
     
+  //timers_.emplace_back(this->create_wall_timer(
+   //   20ms, std::bind(&MuJoCoMessageHandler::img_callback, this)));
   //subcriber_ = this->create_subscription<example_interfaces::msg::String>("robot_news", 10, std::bind(&ListenerStationNode::callbacklistener, this, std::placeholders::_1));
   actuator_cmd_subscription_ = this->create_subscription<mujoco_msgs::msg::Control>("cmd", qos, std::bind(&MuJoCoMessageHandler::actuator_cmd_callback, this, std::placeholders::_1));
 
   actuator_cmds_ptr_ = std::make_shared<Control>();
   RCLCPP_INFO(this->get_logger(), "Start MuJoCoMessageHandler ...");
 
-  std::string model_file = this->get_parameter(model_param_name)
-                               .get_parameter_value()
-                               .get<std::string>();
-  mju::strcpy_arr(sim_->filename, model_file.c_str());
   sim_->uiloadrequest.fetch_add(1);
 }
 
@@ -75,6 +77,64 @@ void MuJoCoMessageHandler::odom_callback() {
   }
 }
 
+//void MuJoCoMessageHandler::img_callback() {
+//  const std::lock_guard<std::mutex> lock(sim_->mtx);
+//    if (sim_->d != nullptr && sim_->m != nullptr) {
+//        // Perform a simulation step
+//        static mjrContext con;
+//        static mjvOption opt;
+//        static mjvScene scn;
+//
+//        // Initialize if not already done
+//        static bool initialized = false;
+//        if (!initialized) {
+//            mjv_defaultOption(&opt);
+//            mjv_makeScene(sim_->m, &scn, 1000);  // Adjust the maxgeom if necessary
+//            mjr_defaultContext(&con);
+//            initialized = true;
+//
+//            // Find the camera defined in the XML file
+//            int camera_id = mj_name2id(sim_->m, mjOBJ_CAMERA, "Upper_view");
+//            if (camera_id == -1) {
+//                RCLCPP_ERROR(this->get_logger(), "Camera 'Upper_view' not found in the model!");
+//            return;
+//            }
+//            sim_->cam.type = mjCAMERA_FIXED;
+//            sim_->cam.fixedcamid = camera_id;
+//        }
+//        sim_->mtx.unlock();
+//        // Render scene
+//        mjv_updateScene(sim_->m, sim_->d, &opt, nullptr, &sim_->cam, mjCAT_ALL, &scn);
+//        mjrRect viewport = {0, 0, 640, 480};
+//        mjr_render(viewport, &scn, &con);
+//
+//        int W = viewport.width; 
+//        int H = viewport.height;
+//
+//       unsigned char* front_rgb = (unsigned char*)std::malloc(3 * W * H);
+//        if (!front_rgb) {
+//            RCLCPP_ERROR(this->get_logger(), "Failed to allocate memory for image capture!");
+//            return;
+//        }
+//
+//        // Capture image
+//        mjr_readPixels(front_rgb, NULL, viewport, &con);
+//
+//        auto front_image = sensor_msgs::msg::Image();
+//        front_image.header.frame_id = "drone";
+//        front_image.header.stamp = rclcpp::Clock().now();
+//        front_image.height = 480;
+//        front_image.width = 640;
+//        front_image.encoding = "rgb8";
+//        front_image.is_bigendian = 0;
+//        front_image.step = front_image.width * 3;
+//        size_t front_data_size = front_image.width * front_image.height * 3;
+//        front_image.data.resize(front_data_size);
+//        std::memcpy(&front_image.data[0], front_rgb, front_data_size);
+//        rgb_img_publisher_ptr_->publish(front_image);
+//        RCLCPP_INFO(this->get_logger(), "Sending image ...");
+//    }
+//}
 
 void MuJoCoMessageHandler::odom_load_callback() {
 

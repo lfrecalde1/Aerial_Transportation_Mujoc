@@ -9,10 +9,6 @@
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_broadcaster.h>
-
-#include "communication/msg/actuator_cmds.hpp"
-#include "communication/msg/touch_sensor.hpp"
-#include "communication/srv/simulation_reset.hpp"
 #include "mujoco_msgs/msg/control.hpp"
 
 #include "array_safety.h"
@@ -59,6 +55,8 @@ private:
   void actuator_cmd_callback(
       const mujoco_msgs::msg::Control::SharedPtr msg) const;
 
+  void img_callback();
+
   mj::Simulate *sim_;
   std::string name_prefix, model_param_name;
   std::vector<rclcpp::TimerBase::SharedPtr> timers_;
@@ -66,6 +64,9 @@ private:
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_load_;
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_publisher_;
+  //rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr front_camera_publisher_;
+  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rgb_img_publisher_ptr_;
+
 
   //rclcpp::Subscription<mujoco_msgs::msg::Control>::SharedPtr actuator_cmd_subscription_;
   rclcpp::Subscription<mujoco_msgs::msg::Control>::SharedPtr actuator_cmd_subscription_;

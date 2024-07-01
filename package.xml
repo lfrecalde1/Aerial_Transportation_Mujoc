@@ -17,7 +17,6 @@
   <depend>tf2_ros</depend>
   <depend>nav_msgs</depend>
   <depend>cv_bridge</depend>
-  <depend>communication</depend>
   <depend>mujoco_msgs</depend>
 
 

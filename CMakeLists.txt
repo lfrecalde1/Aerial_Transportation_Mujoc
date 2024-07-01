@@ -28,6 +28,7 @@ find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
+find_package(OpenCV REQUIRED)
 
 # Mujoco location
 if(NOT TARGET mujoco)
@@ -35,6 +36,12 @@ if(NOT TARGET mujoco)
   set_target_properties(mujoco PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/lib/libmujoco.so)
 endif()
 
+include_directories(
+  ${rclcpp_INCLUDE_DIRS}
+  ${sensor_msgs_INCLUDE_DIRS}
+  ${cv_bridge_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
+)
 # Include location of the executables files
 file(GLOB_RECURSE source ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc)
 
@@ -42,7 +49,7 @@ file(GLOB_RECURSE source ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp ${CMAKE_CURRENT_S
 add_executable(my_node ${source})
 
 # Include libraries
-target_link_libraries(my_node mujoco glfw pthread rt ${CMAKE_DL_LIBS})
+target_link_libraries(my_node mujoco glfw pthread ${OpenCV_LIBRARIES} rt ${CMAKE_DL_LIBS})
 
 # Include directories
 target_include_directories(my_node PUBLIC
@@ -61,7 +68,6 @@ ament_target_dependencies(
   "tf2_ros"
   "nav_msgs"
   "cv_bridge"
-  "communication"
   "mujoco_msgs"
 )
 
