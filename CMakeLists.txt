@@ -20,7 +20,6 @@ list(APPEND ${PROJECT_NAME}_CONFIG_EXTRAS
 
 find_package(ament_cmake REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(communication REQUIRED)
 find_package(mujoco_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
@@ -47,7 +46,6 @@ file(GLOB_RECURSE source ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp ${CMAKE_CURRENT_S
 
 # Add executable
 add_executable(my_node ${source})
-
 # Include libraries
 target_link_libraries(my_node mujoco glfw pthread ${OpenCV_LIBRARIES} rt ${CMAKE_DL_LIBS})
 

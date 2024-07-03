@@ -520,7 +520,6 @@ int main(int argc, const char **argv) {
   auto spin_thread = std::thread(spin_func, message_handle);
   // start simulation UI loop (blocking call)
   sim->renderloop();
-  sim->renderer->
   spin_thread.join();
   physicsthreadhandle.join();
 
