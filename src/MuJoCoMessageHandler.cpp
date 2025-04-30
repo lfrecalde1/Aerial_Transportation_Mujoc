@@ -32,7 +32,7 @@ MuJoCoMessageHandler::MuJoCoMessageHandler(mj::Simulate *sim)
       2.5ms, std::bind(&MuJoCoMessageHandler::imu_callback, this)));
 
   timers_.emplace_back(
-    this->create_wall_timer(100ms, std::bind(&MuJoCoMessageHandler::publish_image, this))); 
+    this->create_wall_timer(2000ms, std::bind(&MuJoCoMessageHandler::publish_image, this))); 
   //timers_.emplace_back(this->create_wall_timer(20ms, std::bind(&MuJoCoMessageHandler::publish_image_from_render, this)));
   //timers_.emplace_back(this->create_wall_timer(20ms, std::bind(&MuJoCoMessageHandler::publish_image, this)));
   //subcriber_ = this->create_subscription<example_interfaces::msg::String>("robot_news", 10, std::bind(&ListenerStationNode::callbacklistener, this, std::placeholders::_1));
@@ -110,6 +110,16 @@ void MuJoCoMessageHandler::publish_image_from_render(const mjvScene* scn, const 
         return;
     }
 
+    // Flip vertically
+    std::vector<unsigned char> flipped_data(3 * W * H);
+    for (int row = 0; row < H; ++row) {
+        std::memcpy(
+            &flipped_data[3 * W * row],
+            &rgb_data[3 * W * (H - 1 - row)],
+            3 * W
+        );
+    }
+
     sensor_msgs::msg::Image image_msg;
     image_msg.header.stamp = this->now();
     image_msg.header.frame_id = "drone";
@@ -117,7 +127,7 @@ void MuJoCoMessageHandler::publish_image_from_render(const mjvScene* scn, const 
     image_msg.width = W;
     image_msg.encoding = "rgb8";
     image_msg.step = W * 3;
-    image_msg.data.assign(rgb_data, rgb_data + (W * H * 3));
+    image_msg.data = std::move(flipped_data);
 
     rgb_img_publisher_ptr_->publish(image_msg);
     std::free(rgb_data);
