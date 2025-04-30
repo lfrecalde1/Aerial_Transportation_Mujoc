@@ -1776,6 +1776,10 @@ void Simulate::render() {
   // render scene
   mjr_render(rect, &this->scn, &this->platform_ui->mjr_context());
 
+  if (this->post_render_callback) {
+  this->post_render_callback(&this->scn, &this->platform_ui->mjr_context(), rect);
+}
+
   // show last loading error
   if (this->loadError[0]) {
     mjr_overlay(mjFONT_NORMAL, mjGRID_BOTTOMLEFT, rect, this->loadError, 0,

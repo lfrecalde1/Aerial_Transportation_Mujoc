@@ -47,6 +47,10 @@ public:
 
   std::shared_ptr<Control> get_actuator_cmds_ptr();
 
+  void publish_image_from_render(const mjvScene* scn,
+                                 const mjrContext* con,
+                                 const mjrRect& viewport);
+
 private:
 
   void odom_callback();
@@ -64,8 +68,11 @@ private:
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_load_;
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_publisher_;
-  //rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr front_camera_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rgb_img_publisher_ptr_;
+  void publish_image();
+  //rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr front_camera_publisher_;
+  //rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rgb_img_publisher_ptr_;
+  //void publish_image_from_render(const mjvScene* scn, const mjrContext* con, const mjrRect& viewport);
 
 
   //rclcpp::Subscription<mujoco_msgs::msg::Control>::SharedPtr actuator_cmd_subscription_;

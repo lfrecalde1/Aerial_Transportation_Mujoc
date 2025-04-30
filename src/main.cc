@@ -513,6 +513,11 @@ int main(int argc, const char **argv) {
   // start simulation UI loop (blocking call)
   auto message_handle =
       std::make_shared<deepbreak::MuJoCoMessageHandler>(sim.get());
+
+  sim->post_render_callback = std::bind(
+    &deepbreak::MuJoCoMessageHandler::publish_image_from_render,
+    message_handle.get(), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+
   actuator_cmds_ptr = message_handle->get_actuator_cmds_ptr();
   auto spin_func = [](std::shared_ptr<deepbreak::MuJoCoMessageHandler> node_ptr) {
     rclcpp::spin(node_ptr);
@@ -523,5 +528,5 @@ int main(int argc, const char **argv) {
   spin_thread.join();
   physicsthreadhandle.join();
 
-  return 0;
+ return 0;
 }

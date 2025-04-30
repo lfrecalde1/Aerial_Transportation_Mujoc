@@ -25,6 +25,7 @@
 
 #include <mujoco/mujoco.h>
 #include "platform_ui_adapter.h"
+#include <functional>
 
 namespace mujoco {
 
@@ -212,6 +213,10 @@ class Simulate {
   // info strings
   char info_title[Simulate::kMaxFilenameLength] = {0};
   char info_content[Simulate::kMaxFilenameLength] = {0};
+
+  //std::function<void(const mjvScene*, const mjrContext*, const mjrRect&)> post_render_callback;
+  std::function<void(const mjvScene*, const mjrContext*, const mjrRect&)> post_render_callback;
+
 };
 }  // namespace mujoco
 
