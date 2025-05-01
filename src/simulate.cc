@@ -1647,6 +1647,18 @@ void Simulate::loadmodel() {
   uiModify(&this->ui1, &this->uistate, &this->platform_ui->mjr_context());
   updatesettings(this);
 
+  // ----------------------- SELECT BOTTOM CAMERA AUTOMATICALLY ---------------------------
+  for (int cam_id = 0; cam_id < this->m->ncam; cam_id++) {
+    const char* cam_name = this->m->names + this->m->name_camadr[cam_id];
+    if (!strcmp(cam_name, "bottom_camera")) {
+      this->camera = 2 + cam_id;  // camera selector index
+      this->cam.type = mjCAMERA_FIXED;
+      this->cam.fixedcamid = cam_id;
+      break;
+    }
+  }
+  // --------------------------------------------------------------------------------------
+
   // clear request
   this->loadrequest = 0;
   cond_loadrequest.notify_all();
@@ -1663,7 +1675,6 @@ void Simulate::loadmodel() {
     }
   }
 }
-
 
 //------------------------------------------- rendering --------------------------------------------
 
@@ -1955,6 +1966,7 @@ void Simulate::renderloop() {
   mjui_add(&this->ui0, this->defWatch);
   uiModify(&this->ui0, &this->uistate, &this->platform_ui->mjr_context());
   uiModify(&this->ui1, &this->uistate, &this->platform_ui->mjr_context());
+  this->ui0_enable = false;
 
   // run event loop
   while (!this->platform_ui->ShouldCloseWindow() && !this->exitrequest.load()) {
@@ -1977,6 +1989,16 @@ void Simulate::renderloop() {
 
     // render while simulation is running
     this->render();
+
+    const double desired_fps = 60.0;
+const double frame_time = 1.0 / desired_fps;
+static auto last_time = std::chrono::high_resolution_clock::now();
+auto current_time = std::chrono::high_resolution_clock::now();
+std::chrono::duration<double> elapsed = current_time - last_time;
+if (elapsed.count() < frame_time) {
+    std::this_thread::sleep_for(std::chrono::duration<double>(frame_time - elapsed.count()));
+}
+last_time = std::chrono::high_resolution_clock::now();
   }
 
   this->exitrequest.store(true);

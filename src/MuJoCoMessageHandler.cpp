@@ -21,6 +21,8 @@ MuJoCoMessageHandler::MuJoCoMessageHandler(mj::Simulate *sim)
   //rgb_img_publisher_ptr_ = this->create_publisher<sensor_msgs::msg::Image>("rgb_image", 100);
   rgb_img_publisher_ptr_ = this->create_publisher<sensor_msgs::msg::Image>(
     "rgb_image", rclcpp::QoS(10));
+  
+  clock_pub_ = this->create_publisher<rosgraph_msgs::msg::Clock>("/clock", 100);
 
   timers_.emplace_back(this->create_wall_timer(
       5ms, std::bind(&MuJoCoMessageHandler::odom_callback, this)));
@@ -32,7 +34,10 @@ MuJoCoMessageHandler::MuJoCoMessageHandler(mj::Simulate *sim)
       2.5ms, std::bind(&MuJoCoMessageHandler::imu_callback, this)));
 
   timers_.emplace_back(
-    this->create_wall_timer(2000ms, std::bind(&MuJoCoMessageHandler::publish_image, this))); 
+  this->create_wall_timer(1000ms, std::bind(&MuJoCoMessageHandler::publish_image, this))); 
+
+  timers_.emplace_back(this->create_wall_timer(
+    1ms, std::bind(&MuJoCoMessageHandler::publish_simulation_clock, this)));
   //timers_.emplace_back(this->create_wall_timer(20ms, std::bind(&MuJoCoMessageHandler::publish_image_from_render, this)));
   //timers_.emplace_back(this->create_wall_timer(20ms, std::bind(&MuJoCoMessageHandler::publish_image, this)));
   //subcriber_ = this->create_subscription<example_interfaces::msg::String>("robot_news", 10, std::bind(&ListenerStationNode::callbacklistener, this, std::placeholders::_1));
@@ -52,7 +57,7 @@ void MuJoCoMessageHandler::odom_callback() {
   const std::lock_guard<std::mutex> lock(sim_->mtx);
   if (sim_->d != nullptr) {
     auto message = nav_msgs::msg::Odometry();
-    message.header.stamp = this->get_clock()->now();
+    message.header.stamp = this->now();
     message.header.frame_id = "map";
 
     message.pose.pose.position.x = sim_->d->qpos[0];
@@ -196,7 +201,7 @@ void MuJoCoMessageHandler::odom_load_callback() {
   const std::lock_guard<std::mutex> lock(sim_->mtx);
   if (sim_->d != nullptr) {
     auto message = nav_msgs::msg::Odometry();
-    message.header.stamp = this->get_clock()->now();
+    message.header.stamp = this->now();
     message.header.frame_id = "map";
 
     message.pose.pose.position.x = sim_->d->qpos[7];
@@ -222,7 +227,7 @@ void MuJoCoMessageHandler::odom_load_callback() {
 void MuJoCoMessageHandler::actuator_cmd_callback(
     const mujoco_msgs::msg::Control::SharedPtr msg) const {
   if (sim_->d != nullptr) {
-    actuator_cmds_ptr_->time = this->now().seconds();
+    actuator_cmds_ptr_->time = this->now();
     actuator_cmds_ptr_->thrust = msg->thrust;
     actuator_cmds_ptr_->torque_x = msg->torque_x;
     actuator_cmds_ptr_->torque_y = msg->torque_y;
@@ -235,7 +240,7 @@ void MuJoCoMessageHandler::imu_callback() {
   if (sim_->d != nullptr) {
     auto message = sensor_msgs::msg::Imu();
     message.header.frame_id = "imu_link";
-    message.header.stamp = rclcpp::Clock().now();
+    message.header.stamp = this->now();
     const std::lock_guard<std::mutex> lock(sim_->mtx);
 
     for (int i = 0; i < sim_->m->nsensor; i++) {
@@ -263,6 +268,15 @@ void MuJoCoMessageHandler::imu_callback() {
     imu_publisher_->publish(message);
   }
 }
+
+void MuJoCoMessageHandler::publish_simulation_clock() {
+    if (sim_ && sim_->d) {
+        rosgraph_msgs::msg::Clock clock_msg;
+        clock_msg.clock = rclcpp::Time(sim_->d->time * 1e9);  // seconds → nanoseconds
+        clock_pub_->publish(clock_msg);
+    }
+}
+
 std::shared_ptr<MuJoCoMessageHandler::Control>
 MuJoCoMessageHandler::get_actuator_cmds_ptr() {
   return actuator_cmds_ptr_;

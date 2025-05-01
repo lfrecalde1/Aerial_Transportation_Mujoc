@@ -10,6 +10,7 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include "mujoco_msgs/msg/control.hpp"
+#include "rosgraph_msgs/msg/clock.hpp"
 
 #include "array_safety.h"
 #include "simulate.h"
@@ -56,6 +57,7 @@ private:
   void odom_callback();
   void odom_load_callback();
   void imu_callback();
+  void publish_simulation_clock();
   void actuator_cmd_callback(
       const mujoco_msgs::msg::Control::SharedPtr msg) const;
 
@@ -69,6 +71,9 @@ private:
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_load_;
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rgb_img_publisher_ptr_;
+  rclcpp::Publisher<rosgraph_msgs::msg::Clock>::SharedPtr clock_pub_;
+  rclcpp::Clock::SharedPtr sim_clock_;
+
   void publish_image();
   //rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr front_camera_publisher_;
   //rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rgb_img_publisher_ptr_;

@@ -53,8 +53,8 @@ GlfwAdapter::GlfwAdapter() {
   vidmode_ = *Glfw().glfwGetVideoMode(Glfw().glfwGetPrimaryMonitor());
 
   // create window
-  window_ = Glfw().glfwCreateWindow((2 * vidmode_.width) / 3,
-                                    (2 * vidmode_.height) / 3,
+  window_ = Glfw().glfwCreateWindow(640,
+                                    480,
                                     "MuJoCo", nullptr, nullptr);
   if (!window_) {
     mju_error("could not create window");
