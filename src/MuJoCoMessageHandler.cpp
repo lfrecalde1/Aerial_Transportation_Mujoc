@@ -15,9 +15,9 @@ MuJoCoMessageHandler::MuJoCoMessageHandler(mj::Simulate *sim)
   
   auto qos = rclcpp::QoS(rclcpp::KeepLast(1), rmw_qos_profile_sensor_data);
 
-  odom_publisher_ = this->create_publisher<nav_msgs::msg::Odometry>("odom", 100);
-  odom_publisher_load_ = this->create_publisher<nav_msgs::msg::Odometry>("load", 100);
-  imu_publisher_ = this->create_publisher<sensor_msgs::msg::Imu>("imu", 100);
+  odom_publisher_ = this->create_publisher<nav_msgs::msg::Odometry>("odom", rclcpp::QoS(10));
+  odom_publisher_load_ = this->create_publisher<nav_msgs::msg::Odometry>("load", rclcpp::QoS(10));
+  imu_publisher_ = this->create_publisher<sensor_msgs::msg::Imu>("imu", rclcpp::QoS(10));
   //rgb_img_publisher_ptr_ = this->create_publisher<sensor_msgs::msg::Image>("rgb_image", 100);
   rgb_img_publisher_ptr_ = this->create_publisher<sensor_msgs::msg::Image>(
     "rgb_image", rclcpp::QoS(10));
@@ -34,7 +34,7 @@ MuJoCoMessageHandler::MuJoCoMessageHandler(mj::Simulate *sim)
       2.5ms, std::bind(&MuJoCoMessageHandler::imu_callback, this)));
 
   timers_.emplace_back(
-  this->create_wall_timer(1000ms, std::bind(&MuJoCoMessageHandler::publish_image, this))); 
+  this->create_wall_timer(2000ms, std::bind(&MuJoCoMessageHandler::publish_image, this))); 
 
   timers_.emplace_back(this->create_wall_timer(
     1ms, std::bind(&MuJoCoMessageHandler::publish_simulation_clock, this)));
@@ -227,7 +227,7 @@ void MuJoCoMessageHandler::odom_load_callback() {
 void MuJoCoMessageHandler::actuator_cmd_callback(
     const mujoco_msgs::msg::Control::SharedPtr msg) const {
   if (sim_->d != nullptr) {
-    actuator_cmds_ptr_->time = this->now();
+    //actuator_cmds_ptr_->time = this->now();
     actuator_cmds_ptr_->thrust = msg->thrust;
     actuator_cmds_ptr_->torque_x = msg->torque_x;
     actuator_cmds_ptr_->torque_y = msg->torque_y;
