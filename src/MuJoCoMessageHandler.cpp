@@ -31,7 +31,7 @@ MuJoCoMessageHandler::MuJoCoMessageHandler(mj::Simulate *sim)
       5ms, std::bind(&MuJoCoMessageHandler::odom_load_callback, this)));
 
   timers_.emplace_back(this->create_wall_timer(
-      2.5ms, std::bind(&MuJoCoMessageHandler::imu_callback, this)));
+      1.5ms, std::bind(&MuJoCoMessageHandler::imu_callback, this)));
 
   timers_.emplace_back(
   this->create_wall_timer(2000ms, std::bind(&MuJoCoMessageHandler::publish_image, this))); 
@@ -250,7 +250,7 @@ void MuJoCoMessageHandler::imu_callback() {
         message.linear_acceleration.y =
             sim_->d->sensordata[sim_->m->sensor_adr[i] + 1];
         message.linear_acceleration.z =
-            sim_->d->sensordata[sim_->m->sensor_adr[i] + 2];
+            sim_->d->sensordata[sim_->m->sensor_adr[i] + 2] - 9.81;
       } else if (sim_->m->sensor_type[i] == mjtSensor::mjSENS_FRAMEQUAT) {
         message.orientation.w = sim_->d->sensordata[sim_->m->sensor_adr[i]];
         message.orientation.x = sim_->d->sensordata[sim_->m->sensor_adr[i] + 1];

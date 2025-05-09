@@ -23,8 +23,8 @@
   </default>
 
   <worldbody>
-    <light pos="0 0 1.5" dir="0 0 -1" directional="true"/>
-    <geom name="floor" size="0 0 0.05" type="plane" material="floor_material"/>
+    <geom type="plane" size="10 10 0.1" />
+    <light pos="0 0 10" />
 
     <camera name="Upper_view" pos="0.0 0.0 6.0" quat="1 0.0 0.0 0.0" mode="trackcom"/>
     <camera name="Track_view" pos="0 -1 .5" quat="0.707 0.70 0.0 0.0" mode="trackcom"/>
@@ -62,7 +62,7 @@
       <site name="payload_point_drone" pos="0.0 0.0 -0.00"/>
 
       <!-- Add bottom-facing camera here -->
-      <camera name="bottom_camera" pos="0 0 -0.2" euler="0 0 -1.57"/>
+      <!--<camera name="bottom_camera" pos="0 0 -0.2" euler="0 0 -1.57"/>-->
     </body>
 
     <!-- Payloy only in xyz axis -->
@@ -87,18 +87,20 @@
     <motor ctrllimited="true" ctrlrange="-0.5 0.5" gear="0. 0. 0. 0. 0. 1." site="rateZ" name="z_moment"/>
 </actuator>
 
-<sensor>
-    <framequat name="drone_quat" objtype="site" objname="imu" noise="0.00"/>
-    <gyro name="drone_angular_velocity" site="imu" noise="0.01"/>
-    <accelerometer name="drone_linacc" site="imu" noise="0.01"/>
-    <framepos name="drone_position" objtype="site" objname="imu" noise="0.00"/>
-    <velocimeter name="drone_linear_velocity" site="imu" noise="0.00"/>
-</sensor>
-    <!--<tendon>
-        <spatial name="rope1" range="0 2">
+<tendon>
+        <spatial name="rope1" limited="true" range="0 2">
             <site site="payload_point_drone"/>
             <site site="payload_point"/>
         </spatial>
-    </tendon>
-    -->
+</tendon>
+
+<sensor>
+    <framequat name="drone_quat" objtype="site" objname="imu" noise="0.00"/>
+    <gyro name="drone_angular_velocity" site="imu" noise="0.001"/>
+    <accelerometer name="drone_linacc" site="imu" noise="0.001"/>
+    <framepos name="drone_position" objtype="site" objname="imu" noise="0.00"/>
+    <velocimeter name="drone_linear_velocity" site="imu" noise="0.00"/>
+    <tendonlimitfrc tendon="rope1" />
+</sensor>
+
 </mujoco>
